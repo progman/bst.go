@@ -13,14 +13,14 @@ type bst_item_t struct {
 
 	key int
 	left *bst_item_t
-	r *bst_item_t
+	right *bst_item_t
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 func (p *bst_item_t) init(key int) {
 
 	p.key = key
 	p.left   = nil
-	p.r   = nil
+	p.right   = nil
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 type bst_t struct {
@@ -58,16 +58,16 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 // rigth way
 		if (key > p_cur.key) {
 
-			if (p_cur.r == nil) {
+			if (p_cur.right == nil) {
 
 				log.Printf("\tset rigth\n")
-				p_cur.r = p_bstr_item
+				p_cur.right = p_bstr_item
 				break;
 
 			} else {
 
 				log.Printf("\tgo to rigth\n")
-				p_cur = p_cur.r
+				p_cur = p_cur.right
 				continue;
 			}
 		}
@@ -127,7 +127,7 @@ func (p *bst_t) find(key int) *bst_item_t {
 // rigth way
 		if (key > p_cur.key) {
 
-			if (p_cur.r == nil) {
+			if (p_cur.right == nil) {
 
 				log.Printf("\tdeath way\n")
 				return nil;
@@ -135,7 +135,7 @@ func (p *bst_t) find(key int) *bst_item_t {
 			} else {
 
 				log.Printf("\tgo to rigth\n")
-				p_cur = p_cur.r
+				p_cur = p_cur.right
 				continue;
 			}
 		}
