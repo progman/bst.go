@@ -147,6 +147,19 @@ func main() {
 	bst.insert(70)
 
 
+	bst.insert(100)
+
+
+	bst.insert(60)
+
+	bst.insert(60)
+
+	bst.insert(50)
+
+	bst.insert(65)
+
+	bst.insert(95)
+
 //	v := Vertex{3, 4}
 //	fmt.Println(v.Abs())
 	fmt.Println("ok")
