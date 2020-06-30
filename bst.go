@@ -7,45 +7,8 @@ import (
 // "math"
 )
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-var list []*bst_item_t
-
-/*
-<-->tmp := []byte{}
-
-
-<-->f, err := os.Open(filename)
-<-->if err != nil {
-
-<--><-->return "", err
-<-->}
-<-->defer f.Close()
-
-
-<-->buf := make([]byte, 4096)
-
-
-<-->for {
-
-<--><-->n, err := f.Read(buf)
-<--><-->if err == io.EOF {
-
-<--><--><-->break
-<--><-->}
-<--><-->if err != nil {
-
-<--><--><-->return "", err
-<--><-->}
-
-
-<--><-->for i := 0; i < n; i++ {
-
-<--><--><-->tmp = append(tmp, buf[i])
-<--><-->}
-<-->}
-*/
-
-
-
+//var list []*bst_item_t
+/* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 type bst_item_t struct {
 
 	key int
@@ -61,6 +24,7 @@ func (p *bst_item_t) init(key int) {
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 type bst_t struct {
+
 	head *bst_item_t
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
@@ -73,7 +37,7 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 
 	log.Printf("insert(%d)\n", key)
 	var p_bstr_item *bst_item_t = &bst_item_t{}
-	list = append(list, p_bstr_item)
+//	list = append(list, p_bstr_item)
 
 
 	p_bstr_item.init(key)
@@ -87,6 +51,7 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 	}
 
 
+// we will not use recursion (we think about stack size)
 	var p_cur *bst_item_t = p.head
 	for {
 
@@ -143,39 +108,73 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 	}
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
+func (p *bst_t) find(key int) *bst_item_t {
+
+	log.Printf("find(%d)\n", key)
+
+
+	if (p.head == nil) {
+
+		log.Printf("\tbst is empty\n")
+		return nil
+	}
+
+
+// we will not use recursion (we think about stack size)
+	var p_cur *bst_item_t = p.head
+	for {
+
+// rigth way
+		if (key > p_cur.key) {
+
+			if (p_cur.r == nil) {
+
+				log.Printf("\tdeath way\n")
+				return nil;
+
+			} else {
+
+				log.Printf("\tgo to rigth\n")
+				p_cur = p_cur.r
+				continue;
+			}
+		}
+
+// left way
+		if (key < p_cur.key) {
+
+			if (p_cur.l == nil) {
+
+				log.Printf("\tdeath way\n")
+				return nil;
+
+			} else {
+
+				log.Printf("\tgo to left\n")
+				p_cur = p_cur.l
+				continue;
+			}
+		}
+
+// equal way
+		if (key == p_cur.key) {
+
+			log.Printf("\tequal\n")
+			break
+		}
+	}
+
+
+	return p_cur
+}
+/* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 func main() {
 
 	var bst bst_t
 	bst.init()
 
-/*
-	bst.insert(100)
 
-	bst.insert(110)
-	bst.insert(90)
-
-	bst.insert(120)
-	bst.insert(80)
-
-	bst.insert(130)
-	bst.insert(70)
-
-
-	bst.insert(100)
-
-
-	bst.insert(60)
-
-	bst.insert(60)
-
-	bst.insert(50)
-
-	bst.insert(65)
-
-	bst.insert(95)
-*/
-
-	var flag_uniq bool = true
+	var flag_uniq bool = false
 
 
 	bst.insert(100, flag_uniq)
@@ -187,10 +186,55 @@ func main() {
 	bst.insert(105, flag_uniq)
 
 
-	log.Println("ok")
+	var p *bst_item_t
+	p = bst.find(90)
+	if (p == nil) {
+
+		log.Printf("is not found\n")
+
+	} else {
+
+		log.Printf("is found\n")
+	}
 
 
+	p = bst.find(100)
+	if (p == nil) {
 
+		log.Printf("is not found\n")
+
+	} else {
+
+		log.Printf("is found\n")
+	}
+
+
+	p = bst.find(120)
+	if (p == nil) {
+
+		log.Printf("is not found\n")
+
+	} else {
+
+		log.Printf("is found\n")
+	}
+
+
+	p = bst.find(777)
+	if (p == nil) {
+
+		log.Printf("is not found\n")
+
+	} else {
+
+		log.Printf("is found\n")
+	}
+
+
+	log.Printf("ok\n")
+
+
+/*
 	log.Printf("head: %p\n", bst.head)
 	var i int
 	for i=0; i < len(list); i++ {
@@ -202,7 +246,6 @@ func main() {
 
 		log.Printf("\n")
 	}
-
-
+*/
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
