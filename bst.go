@@ -17,11 +17,15 @@ func (v Vertex) Abs() float64 {
 type bst_item_t struct {
 
 	key int
+	l *bst_item_t
+	r *bst_item_t
 }
 
 func (p bst_item_t) init(key int) {
 
 	p.key = key
+	p.l   = nil
+	p.r   = nil
 }
 
 
