@@ -45,7 +45,7 @@ func (p *bst_t) insert(key int) {
 
 	if (p.head == nil) {
 
-		fmt.Println("set as root")
+		fmt.Printf("\tset as root\n")
 		p.head = p_bstr_item
 
 //		fmt.Printf("key %d\n", p_bstr_item.key)
@@ -62,6 +62,17 @@ func (p *bst_t) insert(key int) {
 	}
 
 
+	if (key == p.head.key) {
+
+		fmt.Printf("\thead swap\n")
+		var p_old *bst_item_t = p.head
+		p.head = p_bstr_item
+		p_bstr_item.l = p_old
+		p_bstr_item.r = p_old.r
+		p_old.r = nil
+		return
+	}
+
 
 
 	var p_cur *bst_item_t = p.head
@@ -72,13 +83,15 @@ func (p *bst_t) insert(key int) {
 
 			if (p_cur.r == nil) {
 
-				fmt.Println("set rigth")
+				fmt.Printf("\tset rigth\n")
 				p_cur.r = p_bstr_item
 				break;
+
 			} else {
 
-				fmt.Println("go to rigth")
+				fmt.Printf("\tgo to rigth\n")
 				p_cur = p_cur.r
+				continue;
 			}
 		}
 
@@ -87,20 +100,22 @@ func (p *bst_t) insert(key int) {
 
 			if (p_cur.l == nil) {
 
-				fmt.Println("set left")
+				fmt.Printf("\tset left\n")
 				p_cur.l = p_bstr_item
 				break;
+
 			} else {
 
-				fmt.Println("go to left")
+				fmt.Printf("\tgo to left\n")
 				p_cur = p_cur.l
+				continue;
 			}
 		}
 
 // equal way (we can skip it or change), change it
 		if (key == p_cur.key) {
 
-			fmt.Println("swap")
+			fmt.Printf("\tswap\n")
 			var p_old *bst_item_t = p_cur
 			p_cur = p_bstr_item
 			p_bstr_item.l = p_old
