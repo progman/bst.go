@@ -2,7 +2,8 @@
 package main
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 import (
- "fmt"
+ "log"
+// "fmt"
 // "math"
 )
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
@@ -70,7 +71,7 @@ func (p *bst_t) init() {
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 func (p *bst_t) insert(key int, flag_uniq bool) {
 
-	fmt.Printf("insert(%d)\n", key)
+	log.Printf("insert(%d)\n", key)
 	var p_bstr_item *bst_item_t = &bst_item_t{}
 	list = append(list, p_bstr_item)
 
@@ -78,44 +79,12 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 	p_bstr_item.init(key)
 
 
-//	if (p.head == nil) {
-//		fmt.Println("== nil")
-//	} else {
-//		fmt.Println("!= nil")
-//	}
-
-
 	if (p.head == nil) {
 
-		fmt.Printf("\tset as root\n")
+		log.Printf("\tset as root\n")
 		p.head = p_bstr_item
-
-//		fmt.Printf("key %d\n", p_bstr_item.key)
-//		fmt.Printf("key %d\n", p.head.key)
-
-
-//	if (p.head == nil) {
-//		fmt.Println("== nil")
-//	} else {
-//		fmt.Println("!= nil")
-//	}
-
 		return
 	}
-
-
-/*
-	if (key == p.head.key) {
-
-		fmt.Printf("\thead swap\n")
-		var p_old *bst_item_t = p.head
-		p.head = p_bstr_item
-		p_bstr_item.l = p_old
-		p_bstr_item.r = p_old.r
-		p_old.r = nil
-		return
-	}
-*/
 
 
 	var p_cur *bst_item_t = p.head
@@ -126,13 +95,13 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 
 			if (p_cur.r == nil) {
 
-				fmt.Printf("\tset rigth\n")
+				log.Printf("\tset rigth\n")
 				p_cur.r = p_bstr_item
 				break;
 
 			} else {
 
-				fmt.Printf("\tgo to rigth\n")
+				log.Printf("\tgo to rigth\n")
 				p_cur = p_cur.r
 				continue;
 			}
@@ -143,13 +112,13 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 
 			if (p_cur.l == nil) {
 
-				fmt.Printf("\tset left\n")
+				log.Printf("\tset left\n")
 				p_cur.l = p_bstr_item
 				break;
 
 			} else {
 
-				fmt.Printf("\tgo to left\n")
+				log.Printf("\tgo to left\n")
 				p_cur = p_cur.l
 				continue;
 			}
@@ -160,23 +129,14 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 
 			if (flag_uniq == false) {
 
-				fmt.Printf("\tswap\n")
-
-
-//				var p_old *bst_item_t = p_cur
-//				p_cur = p_bstr_item
-//				p_bstr_item.l = p_old
-//				p_bstr_item.r = p_old.r
-//				p_old.r = nil
-
-
+				log.Printf("\tswap\n")
 				p_bstr_item.l = p_cur.l
 				p_cur.l = p_bstr_item
 				break
 
 			} else {
 
-				fmt.Printf("\tskip\n")
+				log.Printf("\tskip\n")
 				break
 			}
 		}
@@ -227,22 +187,20 @@ func main() {
 	bst.insert(105, flag_uniq)
 
 
-//	v := Vertex{3, 4}
-//	fmt.Println(v.Abs())
-	fmt.Println("ok")
+	log.Println("ok")
 
 
 
-	fmt.Printf("head: %p\n", bst.head)
+	log.Printf("head: %p\n", bst.head)
 	var i int
 	for i=0; i < len(list); i++ {
 
-		fmt.Printf("item:     %p\n", list[i])
-		fmt.Printf("item.key: %d\n", list[i].key)
-		fmt.Printf("item.l:   %p\n", list[i].l)
-		fmt.Printf("item.r:   %p\n", list[i].r)
+		log.Printf("item:     %p\n", list[i])
+		log.Printf("item.key: %d\n", list[i].key)
+		log.Printf("item.l:   %p\n", list[i].l)
+		log.Printf("item.r:   %p\n", list[i].r)
 
-		fmt.Printf("\n")
+		log.Printf("\n")
 	}
 
 
