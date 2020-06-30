@@ -51,6 +51,25 @@ func (p bst_t) insert(key int) {
 		p.head = &bstr_item
 		return
 	}
+
+// rigth way
+	if (key > p.head.key) {
+
+
+	}
+
+// left way
+	if (key < p.head.key) {
+
+
+	}
+
+// equal way
+	if (key == p.head.key) {
+
+
+	}
+
 /*
 	for {
 
