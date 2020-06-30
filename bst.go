@@ -43,12 +43,14 @@ func (p bst_t) init() {
 
 func (p bst_t) insert(key int) {
 
+	fmt.Printf("insert(%d)\n", key)
 	var bstr_item bst_item_t
 	bstr_item.init(key)
 
 
 	if (p.head == nil) {
 
+		fmt.Println("set as root")
 		p.head = &bstr_item
 		return
 	}
