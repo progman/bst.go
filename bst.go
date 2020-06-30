@@ -6,6 +6,45 @@ import (
 // "math"
 )
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
+var list []*bst_item_t
+
+/*
+<-->tmp := []byte{}
+
+
+<-->f, err := os.Open(filename)
+<-->if err != nil {
+
+<--><-->return "", err
+<-->}
+<-->defer f.Close()
+
+
+<-->buf := make([]byte, 4096)
+
+
+<-->for {
+
+<--><-->n, err := f.Read(buf)
+<--><-->if err == io.EOF {
+
+<--><--><-->break
+<--><-->}
+<--><-->if err != nil {
+
+<--><--><-->return "", err
+<--><-->}
+
+
+<--><-->for i := 0; i < n; i++ {
+
+<--><--><-->tmp = append(tmp, buf[i])
+<--><-->}
+<-->}
+*/
+
+
+
 type bst_item_t struct {
 
 	key int
@@ -29,10 +68,13 @@ func (p *bst_t) init() {
 	p.head = nil
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func (p *bst_t) insert(key int) {
+func (p *bst_t) insert(key int, flag_uniq bool) {
 
 	fmt.Printf("insert(%d)\n", key)
 	var p_bstr_item *bst_item_t = &bst_item_t{}
+	list = append(list, p_bstr_item)
+
+
 	p_bstr_item.init(key)
 
 
@@ -62,6 +104,7 @@ func (p *bst_t) insert(key int) {
 	}
 
 
+/*
 	if (key == p.head.key) {
 
 		fmt.Printf("\thead swap\n")
@@ -72,7 +115,7 @@ func (p *bst_t) insert(key int) {
 		p_old.r = nil
 		return
 	}
-
+*/
 
 
 	var p_cur *bst_item_t = p.head
@@ -112,16 +155,30 @@ func (p *bst_t) insert(key int) {
 			}
 		}
 
-// equal way (we can skip it or change), change it
+// equal way. we can skip it (use uniq values) or swap it (use non uniq values), swap by default
 		if (key == p_cur.key) {
 
-			fmt.Printf("\tswap\n")
-			var p_old *bst_item_t = p_cur
-			p_cur = p_bstr_item
-			p_bstr_item.l = p_old
-			p_bstr_item.r = p_old.r
-			p_old.r = nil
-			break
+			if (flag_uniq == false) {
+
+				fmt.Printf("\tswap\n")
+
+
+//				var p_old *bst_item_t = p_cur
+//				p_cur = p_bstr_item
+//				p_bstr_item.l = p_old
+//				p_bstr_item.r = p_old.r
+//				p_old.r = nil
+
+
+				p_bstr_item.l = p_cur.l
+				p_cur.l = p_bstr_item
+				break
+
+			} else {
+
+				fmt.Printf("\tskip\n")
+				break
+			}
 		}
 	}
 }
@@ -131,10 +188,7 @@ func main() {
 	var bst bst_t
 	bst.init()
 
-
-//	bst.insert(20)
-//	bst.insert(20)
-
+/*
 	bst.insert(100)
 
 	bst.insert(110)
@@ -159,9 +213,38 @@ func main() {
 	bst.insert(65)
 
 	bst.insert(95)
+*/
+
+	var flag_uniq bool = true
+
+
+	bst.insert(100, flag_uniq)
+	bst.insert(110, flag_uniq)
+	bst.insert(90,  flag_uniq)
+	bst.insert(100, flag_uniq)
+	bst.insert(110, flag_uniq)
+	bst.insert(120, flag_uniq)
+	bst.insert(105, flag_uniq)
+
 
 //	v := Vertex{3, 4}
 //	fmt.Println(v.Abs())
 	fmt.Println("ok")
+
+
+
+	fmt.Printf("head: %p\n", bst.head)
+	var i int
+	for i=0; i < len(list); i++ {
+
+		fmt.Printf("item:     %p\n", list[i])
+		fmt.Printf("item.key: %d\n", list[i].key)
+		fmt.Printf("item.l:   %p\n", list[i].l)
+		fmt.Printf("item.r:   %p\n", list[i].r)
+
+		fmt.Printf("\n")
+	}
+
+
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
