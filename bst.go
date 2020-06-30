@@ -46,36 +46,50 @@ func (p bst_t) insert(key int) {
 	var bstr_item bst_item_t
 	bstr_item.init(key)
 
+
 	if (p.head == nil) {
 
 		p.head = &bstr_item
 		return
 	}
 
-// rigth way
-	if (key > p.head.key) {
 
-
-	}
-
-// left way
-	if (key < p.head.key) {
-
-
-	}
-
-// equal way
-	if (key == p.head.key) {
-
-
-	}
-
-/*
+	var p_cur *bst_item_t = p.head
 	for {
 
-		if p.head.key < val
+// rigth way
+		if (key > p_cur.key) {
+
+			if (p_cur.r == nil) {
+				p_cur.r = &bstr_item
+				break;
+			} else {
+				p_cur = p_cur.r
+			}
+		}
+
+// left way
+		if (key < p_cur.key) {
+
+			if (p_cur.l == nil) {
+				p_cur.l = &bstr_item
+				break;
+			} else {
+				p_cur = p_cur.l
+			}
+		}
+
+// equal way (we can skip it or change), change it
+		if (key == p_cur.key) {
+
+			var p_old *bst_item_t = p_cur
+			p_cur = &bstr_item
+			bstr_item.l = p_old
+			bstr_item.r = p_old.r
+			p_old.r = nil
+			break
+		}
 	}
-*/
 }
 
 
