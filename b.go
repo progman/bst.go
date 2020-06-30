@@ -6,12 +6,21 @@ import (
 )
 
 
-type item_t struct {
+type item1_t struct {
 
 	key int
 }
+func (p item1_t) init(key int) {
 
-func (p *item_t) init(key int) {
+	p.key = key
+}
+
+
+type item2_t struct {
+
+	key int
+}
+func (p *item2_t) init(key int) {
 
 	p.key = key
 }
@@ -19,8 +28,11 @@ func (p *item_t) init(key int) {
 
 func main() {
 
-	var item item_t
-	item.init(2020)
+	var item1 item1_t
+	item1.init(2020)
+	fmt.Printf("key: %d\n", item1.key)
 
-	fmt.Printf("key: %d\n", item.key)
+	var item2 item2_t
+	item2.init(2020)
+	fmt.Printf("key: %d\n", item2.key)
 }
