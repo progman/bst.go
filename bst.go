@@ -11,16 +11,18 @@ import (
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 type bst_item_t struct {
 
+	parent *bst_item_t
+	left   *bst_item_t
+	right  *bst_item_t
 	key int
-	left *bst_item_t
-	right *bst_item_t
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 func (p *bst_item_t) init(key int) {
 
-	p.key = key
+	p.parent = nil
 	p.left   = nil
-	p.right   = nil
+	p.right  = nil
+	p.key    = key
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 type bst_t struct {
@@ -52,6 +54,7 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 
 
 // we will not use recursion (we think about stack size)
+	var p_old *bst_item_t = nil
 	var p_cur *bst_item_t = p.head
 	for {
 
@@ -61,12 +64,14 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 			if (p_cur.right == nil) {
 
 				log.Printf("\tset rigth\n")
-				p_cur.right = p_bstr_item
+				p_bstr_item.parent = p_old
+				p_cur.right        = p_bstr_item
 				break;
 
 			} else {
 
 				log.Printf("\tgo to rigth\n")
+				p_old = p_cur
 				p_cur = p_cur.right
 				continue;
 			}
@@ -78,12 +83,14 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 			if (p_cur.left == nil) {
 
 				log.Printf("\tset left\n")
-				p_cur.left = p_bstr_item
+				p_bstr_item.parent = p_old
+				p_cur.left         = p_bstr_item
 				break;
 
 			} else {
 
 				log.Printf("\tgo to left\n")
+				p_old = p_cur
 				p_cur = p_cur.left
 				continue;
 			}
@@ -95,8 +102,9 @@ func (p *bst_t) insert(key int, flag_uniq bool) {
 			if (flag_uniq == false) {
 
 				log.Printf("\tswap\n")
-				p_bstr_item.left = p_cur.left
-				p_cur.left = p_bstr_item
+				p_bstr_item.parent = p_old
+				p_bstr_item.left   = p_cur.left
+				p_cur.left         = p_bstr_item
 				break
 
 			} else {
@@ -239,10 +247,11 @@ func main() {
 	var i int
 	for i=0; i < len(list); i++ {
 
-		log.Printf("item:     %p\n", list[i])
-		log.Printf("item.key: %d\n", list[i].key)
-		log.Printf("item.l:   %p\n", list[i].l)
-		log.Printf("item.r:   %p\n", list[i].r)
+		log.Printf("item:        %p\n", list[i])
+		log.Printf("item.parent: %p\n", list[i].parent)
+		log.Printf("item.left:   %p\n", list[i].left)
+		log.Printf("item.right:  %p\n", list[i].right)
+		log.Printf("item.key:    %d\n", list[i].key)
 
 		log.Printf("\n")
 	}
