@@ -128,16 +128,11 @@ func (p *bst_t) insert(key int64, flag_uniq bool) (*bst_item_t) {
 	return p_bstr_item
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func (p *bst_t) find(key int64) (*bst_item_t) {
-
-	p.mutex.RLock()
-	log.Printf("find(%d)\n", key)
-
+func (p *bst_t) findInner(key int64) (*bst_item_t) {
 
 	if (p.head == nil) {
 
 		log.Printf("\tbst is empty\n")
-		p.mutex.RUnlock()
 		return nil
 	}
 
@@ -152,7 +147,6 @@ func (p *bst_t) find(key int64) (*bst_item_t) {
 			if (p_cur.right == nil) {
 
 				log.Printf("\tdeath way\n")
-				p.mutex.RUnlock()
 				return nil;
 
 			} else {
@@ -169,7 +163,6 @@ func (p *bst_t) find(key int64) (*bst_item_t) {
 			if (p_cur.left == nil) {
 
 				log.Printf("\tdeath way\n")
-				p.mutex.RUnlock()
 				return nil;
 
 			} else {
@@ -189,13 +182,25 @@ func (p *bst_t) find(key int64) (*bst_item_t) {
 	}
 
 
+	return p_cur
+}
+/* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
+func (p *bst_t) find(key int64) (*bst_item_t) {
+
+	p.mutex.RLock()
+	log.Printf("find(%d)\n", key)
+
+
+	p_cur := p.findInner(key)
+
+
 	p.mutex.RUnlock()
 	return p_cur
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func (p *bst_t) delete_inner(key int64) (*bst_t) {
+func (p *bst_t) deleteInner(key int64) (*bst_t) {
 
-	var p_cur *bst_item_t = p.find(key)
+	var p_cur *bst_item_t = p.findInner(key)
 	if (p_cur == nil) {
 
 		return nil
@@ -239,7 +244,7 @@ func (p *bst_t) delete(key int64, flag_uniq bool) (*bst_t) {
 	var flag_found bool = false
 	for {
 
-		rc := p.delete_inner(key)
+		rc := p.deleteInner(key)
 		if (rc == nil) {
 
 			break
@@ -266,6 +271,7 @@ func (p *bst_t) delete(key int64, flag_uniq bool) (*bst_t) {
 	p.mutex.Unlock()
 	return p
 }
+/* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 func main() {
 
@@ -349,10 +355,11 @@ func main() {
 */
 
 
-//	http.HandleFunc("/search", viewHandler)
-//	http.HandleFunc("/insert", editHandler)
-//	http.HandleFunc("/delete", saveHandler)
+//	http.HandleFunc("/search", searchHandler)
+//	http.HandleFunc("/insert", insertHandler)
+//	http.HandleFunc("/delete", deleteHandler)
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 	http.HandleFunc("/search/", func(w http.ResponseWriter, r *http.Request) {
 
 		if (r.Method != "GET") {
@@ -396,17 +403,65 @@ func main() {
 			log.Printf("INFO[search]: value \"%s\" is found\n", val)
 		}
 	})
-
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 	http.HandleFunc("/insert", func(w http.ResponseWriter, r *http.Request) {
 
 		if (r.Method != "POST") {
 
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid method for /insert\", \"is_inserted\":false }}\n")
+			log.Printf("ERROR[insert]: invalid method \"%s\"\n", r.Method)
 			return
 		}
 
-		fmt.Fprintf(w, "insert %q\n", html.EscapeString(r.URL.Path))
-	})
 
+//		fmt.Fprintf(w, "search, %q\n", html.EscapeString(r.URL.Path))
+
+
+		err := r.ParseForm();
+		if (err != nil) {
+            fmt.Fprintf(w, "ParseForm() err: %v", err)
+            return
+        }
+
+//        fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
+        val := r.FormValue("val")
+
+
+//		log.Printf("zzzz \"%s\"\n", r.URL.Query()["val"])
+
+//		q := r.URL.Query()
+//		val := r.URL.Query()["val"][0]
+
+
+		val_int64, err := strconv.ParseInt(val, 10, 64);
+		if (err != nil) {
+
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid value for /insert\", \"is_inserted\":false }}\n")
+			log.Printf("ERROR[insert]: invalid value \"%s\"\n", val)
+			return
+		}
+
+
+//		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":false }}\n")
+
+
+//		fmt.Fprintf(w, "search, %s\n", val)
+
+
+		p = bst.insert(val_int64, flag_uniq)
+		if (p == nil) {
+
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_inserted\":false }}\n")
+			log.Printf("INFO[insert]: value \"%s\" is already exist\n", val)
+
+		} else {
+
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_inserted\":true }}\n")
+			log.Printf("INFO[insert]: value \"%s\" is inserted\n", val)
+		}
+
+	})
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 	http.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
 
 		if (r.Method != "DELETE") {
@@ -416,6 +471,7 @@ func main() {
 
 		fmt.Fprintf(w, "delete %q\n", html.EscapeString(r.URL.Path))
 	})
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
 //функциям работы с BST. (GET /search?val=val; POST /insert, DELETE /delete?val=val);
@@ -425,6 +481,7 @@ var x string = "wow";
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello %s, %q\n", x, html.EscapeString(r.URL.Path))
 	})
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
 	log.Fatal(http.ListenAndServe(":8080", nil))

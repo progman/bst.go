@@ -1,0 +1,31 @@
+progman@phoenix:/tmp/00000005$ curl -L 'http://localhost:8080/search?val=777'
+{"result":{"is_error":false, "err_msg":"", "is_found":false }}
+progman@phoenix:/tmp/00000005$ curl -L 'http://localhost:8080/search?val=100'
+{"result":{"is_error":false, "err_msg":"", "is_found":true }}
+progman@phoenix:/tmp/00000005$ curl -L 'http://localhost:8080/niser?val=100'
+Hello wow, "/niser"
+progman@phoenix:/tmp/00000005$ curl -L 'http://localhost:8080/inser?val=100'
+Hello wow, "/inser"
+progman@phoenix:/tmp/00000005$ curl -L 'http://localhost:8080/insert?val=100'
+{"result":{"is_error":true, "err_msg":"invalid method for /insert", "is_inserted":false }}
+progman@phoenix:/tmp/00000005$ curl -D 'val=777' 'http://localhost:8080/insert
+> ^C
+{130} progman@phoenix:/tmp/00000005$ 
+{130} progman@phoenix:/tmp/00000005$ 
+{130} progman@phoenix:/tmp/00000005$ curl -D 'val=777' 'http://localhost:8080/insert'
+{"result":{"is_error":true, "err_msg":"invalid method for /insert", "is_inserted":false }}
+progman@phoenix:/tmp/00000005$ curl -data 'val=777' 'http://localhost:8080/insert'
+curl: (6) Could not resolve host: val=777
+curl: (52) Empty reply from server
+{52} progman@phoenix:/tmp/00000005$ curl --data 'val=777' 'http://localhost:8080/insert'
+curl: (52) Empty reply from server
+{52} progman@phoenix:/tmp/00000005$ curl -d 'val=777' 'http://localhost:8080/insert'
+curl: (52) Empty reply from server
+{52} progman@phoenix:/tmp/00000005$ curl --data 'val=777' 'http://localhost:8080/insert'
+curl: (52) Empty reply from server
+{52} progman@phoenix:/tmp/00000005$ curl --data 'val=777' 'http://localhost:8080/insert'
+curl: (52) Empty reply from server
+{52} progman@phoenix:/tmp/00000005$ curl --data 'val=777' 'http://localhost:8080/insert'
+{"result":{"is_error":false, "err_msg":"", "is_inserted":true }}
+progman@phoenix:/tmp/00000005$ curl -L 'http://localhost:8080/search?val=777'
+{"result":{"is_error":false, "err_msg":"", "is_found":true }}
