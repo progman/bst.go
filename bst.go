@@ -181,10 +181,7 @@ func (p *bst_t) find(key int) (*bst_item_t) {
 	return p_cur
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func (p *bst_t) delete(key int) (*bst_t) {
-
-	log.Printf("delete(%d)\n", key)
-
+func (p *bst_t) delete_inner(key int) (*bst_t) {
 
 	var p_cur *bst_item_t = p.find(key)
 	if (p_cur == nil) {
@@ -194,6 +191,40 @@ func (p *bst_t) delete(key int) (*bst_t) {
 
 
 //return errors.New("invalid hex length")
+
+
+	return p
+}
+/* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
+func (p *bst_t) delete(key int, flag_uniq bool) (*bst_t) {
+
+	log.Printf("delete(%d)\n", key)
+
+
+	var flag_found bool = false
+	for {
+
+		rc := delete_inner(key)
+		if (rc == nil) {
+
+			break
+		}
+
+
+		flag_found = true
+
+
+		if (flag_uniq == true) {
+
+			break
+		}
+	}
+
+
+	if (flag_found == false) {
+
+		return nil
+	}
 
 
 	return p
