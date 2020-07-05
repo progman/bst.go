@@ -1,0 +1,4 @@
+1) show (stringify)
+2) InsertRecursive(), InsertStackSafe(), Find, Delete
+3) lock (defer lock), unlock, lockR, unlockR
+4) TODO lock free
