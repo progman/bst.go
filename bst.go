@@ -204,7 +204,7 @@ func (p *bst_t) delete(key int, flag_uniq bool) (*bst_t) {
 	var flag_found bool = false
 	for {
 
-		rc := delete_inner(key)
+		rc := p.delete_inner(key)
 		if (rc == nil) {
 
 			break
