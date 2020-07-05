@@ -6,8 +6,10 @@ import (
 	"sync"
 //	"errors"
 
-// "fmt"
-// "math"
+	"fmt"
+	"net/http"
+	"html"
+	"strconv"
 )
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 //var list []*bst_item_t
@@ -17,10 +19,10 @@ type bst_item_t struct {
 	parent *bst_item_t
 	left   *bst_item_t
 	right  *bst_item_t
-	key int
+	key int64
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func (p *bst_item_t) init(key int) {
+func (p *bst_item_t) init(key int64) {
 
 	p.parent = nil
 	p.left   = nil
@@ -39,7 +41,7 @@ func (p *bst_t) init() {
 	p.head = nil
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func (p *bst_t) insert(key int, flag_uniq bool) (*bst_item_t) {
+func (p *bst_t) insert(key int64, flag_uniq bool) (*bst_item_t) {
 
 	p.mutex.Lock()
 	log.Printf("insert(%d)\n", key)
@@ -126,7 +128,7 @@ func (p *bst_t) insert(key int, flag_uniq bool) (*bst_item_t) {
 	return p_bstr_item
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func (p *bst_t) find(key int) (*bst_item_t) {
+func (p *bst_t) find(key int64) (*bst_item_t) {
 
 	p.mutex.RLock()
 	log.Printf("find(%d)\n", key)
@@ -191,7 +193,7 @@ func (p *bst_t) find(key int) (*bst_item_t) {
 	return p_cur
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func (p *bst_t) delete_inner(key int) (*bst_t) {
+func (p *bst_t) delete_inner(key int64) (*bst_t) {
 
 	var p_cur *bst_item_t = p.find(key)
 	if (p_cur == nil) {
@@ -205,7 +207,7 @@ func (p *bst_t) delete_inner(key int) (*bst_t) {
 //	parent *bst_item_t
 //	left   *bst_item_t
 //	right  *bst_item_t
-//	key int
+//	key int64
 
 
 	if (p_cur.left == nil) && (p_cur.right == nil) {
@@ -228,7 +230,7 @@ func (p *bst_t) delete_inner(key int) (*bst_t) {
 	return p
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func (p *bst_t) delete(key int, flag_uniq bool) (*bst_t) {
+func (p *bst_t) delete(key int64, flag_uniq bool) (*bst_t) {
 
 	p.mutex.Lock()
 	log.Printf("delete(%d)\n", key)
@@ -345,5 +347,86 @@ func main() {
 		log.Printf("\n")
 	}
 */
+
+
+//	http.HandleFunc("/search", viewHandler)
+//	http.HandleFunc("/insert", editHandler)
+//	http.HandleFunc("/delete", saveHandler)
+
+	http.HandleFunc("/search/", func(w http.ResponseWriter, r *http.Request) {
+
+		if (r.Method != "GET") {
+
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid method for /search\", \"is_found\":false }}\n")
+			log.Printf("ERROR[search]: invalid method \"%s\"\n", r.Method)
+			return
+		}
+
+//		fmt.Fprintf(w, "search, %q\n", html.EscapeString(r.URL.Path))
+
+
+//		q := r.URL.Query()
+		val := r.URL.Query()["val"][0]
+
+
+		val_int64, err := strconv.ParseInt(val, 10, 64);
+		if (err != nil) {
+
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid value for /search\", \"is_found\":false }}\n")
+			log.Printf("ERROR[search]: invalid value \"%s\"\n", val)
+			return
+		}
+
+
+//		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":false }}\n")
+
+
+//		fmt.Fprintf(w, "search, %s\n", val)
+
+
+		p = bst.find(val_int64)
+		if (p == nil) {
+
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":false }}\n")
+			log.Printf("INFO[search]: value \"%s\" is not found\n", val)
+
+		} else {
+
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":true }}\n")
+			log.Printf("INFO[search]: value \"%s\" is found\n", val)
+		}
+	})
+
+	http.HandleFunc("/insert", func(w http.ResponseWriter, r *http.Request) {
+
+		if (r.Method != "POST") {
+
+			return
+		}
+
+		fmt.Fprintf(w, "insert %q\n", html.EscapeString(r.URL.Path))
+	})
+
+	http.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
+
+		if (r.Method != "DELETE") {
+
+			return
+		}
+
+		fmt.Fprintf(w, "delete %q\n", html.EscapeString(r.URL.Path))
+	})
+
+
+//функциям работы с BST. (GET /search?val=val; POST /insert, DELETE /delete?val=val);
+
+var x string = "wow";
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello %s, %q\n", x, html.EscapeString(r.URL.Path))
+	})
+
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
