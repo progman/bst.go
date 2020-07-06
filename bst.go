@@ -79,7 +79,7 @@ func (p *bst_t) insert(key int64, flag_uniq bool) (*bst_item_t) {
 	var p_bstr_item *bst_item_t = &bst_item_t{}
 
 	if (p.flag_debug == true) {
-		p.debug_list = append(debug_list, p_bstr_item)
+		p.debug_list = append(p.debug_list, p_bstr_item)
 	}
 
 
@@ -487,7 +487,7 @@ func main() {
 	var err error
 	var i int
 	var int_list []int64
-	var p *bst_item_t
+//	var p *bst_item_t
 	var bst bst_t
 	var flag_uniq bool = false
 
@@ -511,7 +511,7 @@ func main() {
 
 
 // init BST
-	bst.init()
+	bst.init(false)
 
 
 // load values from int list to BST
