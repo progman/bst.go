@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"encoding/json"
 	"log"
 	"sync"
@@ -9,14 +10,11 @@ import (
 	"strconv"
 	"os"
 )
-//var list []*bst_item_t
 
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @brief  BST item (leaf)
  */
 type bst_item_t struct {
 
@@ -29,9 +27,9 @@ type bst_item_t struct {
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @brief  BST item init
+ * @param  key integer value
+ * @return void
  */
 func (p *bst_item_t) init(key int64) {
 
@@ -44,41 +42,45 @@ func (p *bst_item_t) init(key int64) {
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @brief  BST main struct
  */
 type bst_t struct {
 
-	head  *bst_item_t
-	mutex sync.RWMutex
+	head       *bst_item_t
+	mutex      sync.RWMutex
+	debug_list []*bst_item_t
+	flag_debug bool
 }
 
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @brief  BST init
+ * @return void
  */
-func (p *bst_t) init() {
+func (p *bst_t) init(flag_debug bool) {
 
-	p.head = nil
+	p.head       = nil
+	p.flag_debug = flag_debug
 }
 
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
  * @brief  insert key to BST (we do not use recursion becase we think about stack overflow)
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @param  key integer value
+ * @param  flag_uniq flag for uniq values in BST
+ * @return pointer to BST item (leaf)
  */
 func (p *bst_t) insert(key int64, flag_uniq bool) (*bst_item_t) {
 
 	p.mutex.Lock()
 	log.Printf("insert(%d)\n", key)
 	var p_bstr_item *bst_item_t = &bst_item_t{}
-//	list = append(list, p_bstr_item)
+
+	if (p.flag_debug == true) {
+		p.debug_list = append(debug_list, p_bstr_item)
+	}
 
 
 	p_bstr_item.init(key)
@@ -163,9 +165,9 @@ func (p *bst_t) insert(key int64, flag_uniq bool) (*bst_item_t) {
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @brief  find key in BST (we do not use recursion becase we think about stack overflow)
+ * @param  key integer value
+ * @return pointer to BST item (leaf)
  */
 func (p *bst_t) findInner(key int64) (*bst_item_t) {
 
@@ -227,9 +229,9 @@ func (p *bst_t) findInner(key int64) (*bst_item_t) {
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @brief  find key in BST (we do not use recursion becase we think about stack overflow)
+ * @param  key integer value
+ * @return pointer to BST item (leaf)
  */
 func (p *bst_t) find(key int64) (*bst_item_t) {
 
@@ -247,9 +249,9 @@ func (p *bst_t) find(key int64) (*bst_item_t) {
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @brief  delete key in BST (we do not use recursion becase we think about stack overflow)
+ * @param  key integer value
+ * @return pointer to BST
  */
 func (p *bst_t) deleteInner(key int64) (*bst_t) {
 
@@ -283,7 +285,7 @@ func (p *bst_t) deleteInner(key int64) (*bst_t) {
 	}
 
 
-//return errors.New("invalid hex length")
+// UNDER CONSTRUCTION !!!
 
 
 	return p
@@ -292,9 +294,10 @@ func (p *bst_t) deleteInner(key int64) (*bst_t) {
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @brief  delete key in BST (we do not use recursion becase we think about stack overflow)
+ * @param  key integer value
+ * @param  flag_uniq flag for uniq values in BST
+ * @return pointer to BST
  */
 func (p *bst_t) delete(key int64, flag_uniq bool) (*bst_t) {
 
@@ -337,8 +340,11 @@ func (p *bst_t) delete(key int64, flag_uniq bool) (*bst_t) {
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
  * @brief  http handler for operation search
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @param  bst pointer to BST
+ * @param  flag_uniq flag for uniq values in BST
+ * @param  w response context
+ * @param  r request context
+ * @return void
  */
 func searchHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Request) {
 
@@ -378,8 +384,11 @@ func searchHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Re
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
  * @brief  http handler for operation insert
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @param  bst pointer to BST
+ * @param  flag_uniq flag for uniq values in BST
+ * @param  w response context
+ * @param  r request context
+ * @return void
  */
 func insertHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Request) {
 
@@ -428,8 +437,11 @@ func insertHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Re
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
  * @brief  http handler for operation delete
- * @param  arg контекс программы
- * @return признак того успешно ли отработала функция
+ * @param  bst pointer to BST
+ * @param  flag_uniq flag for uniq values in BST
+ * @param  w response context
+ * @param  r request context
+ * @return void
  */
 func deleteHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Request) {
 
@@ -472,35 +484,45 @@ func deleteHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Re
  */
 func main() {
 
-
-
-
-
-	intJson := `[ 100, 110, 90, 100, 110, 120, 105 ]`
-
+	var err error
+	var i int
 	var int_list []int64
-
-	json.Unmarshal([]byte(intJson), &int_list)
-	fmt.Printf("Birds : %+v\n", int_list)
-
-
+	var p *bst_item_t
 	var bst bst_t
-	bst.init()
-
-
 	var flag_uniq bool = false
 
 
-	bst.insert(100, flag_uniq)
-	bst.insert(110, flag_uniq)
-	bst.insert(90,  flag_uniq)
-	bst.insert(100, flag_uniq)
-	bst.insert(110, flag_uniq)
-	bst.insert(120, flag_uniq)
-	bst.insert(105, flag_uniq)
+// load int list from json file
+	intJson, err := ioutil.ReadFile("./bst.json")
+	if err != nil {
+
+		log.Fatal(err)
+	}
+//	intJson := `[ 100, 110, 90, 100, 110, 120, 105 ]`
 
 
-	var p *bst_item_t
+// parse json
+	err = json.Unmarshal([]byte(intJson), &int_list)
+	if err != nil {
+
+		log.Fatal(err)
+	}
+	fmt.Printf("int_list: %+v\n", int_list)
+
+
+// init BST
+	bst.init()
+
+
+// load values from int list to BST
+	for i=0; i < len(int_list); i++ {
+
+		bst.insert(int_list[i], flag_uniq)
+	}
+
+
+
+/*
 	p = bst.find(90)
 	if (p == nil) {
 
@@ -543,14 +565,12 @@ func main() {
 
 		log.Printf("is found\n")
 	}
-
-
 	log.Printf("ok\n")
+*/
 
 
 /*
 	log.Printf("head: %p\n", bst.head)
-	var i int
 	for i=0; i < len(list); i++ {
 
 		log.Printf("item:        %p\n", list[i])
