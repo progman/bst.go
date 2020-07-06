@@ -8,7 +8,7 @@ import (
 
 	"fmt"
 	"net/http"
-	"html"
+//	"html"
 	"strconv"
 )
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
@@ -272,13 +272,115 @@ func (p *bst_t) delete(key int64, flag_uniq bool) (*bst_t) {
 	return p
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func searchHandler(bst *bst_t, w http.ResponseWriter, r *http.Request) {
+func searchHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Request) {
+
+	if (r.Method != "GET") {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid method for /search\", \"is_found\":false }}\n")
+		log.Printf("ERROR[search]: invalid method \"%s\"\n", r.Method)
+		return
+	}
+
+
+	val := r.URL.Query()["val"][0]
+	val_int64, err := strconv.ParseInt(val, 10, 64);
+	if (err != nil) {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid value for /search\", \"is_found\":false }}\n")
+		log.Printf("ERROR[search]: invalid value \"%s\"\n", val)
+		return
+	}
+
+
+	var p *bst_item_t
+	p = bst.find(val_int64)
+	if (p == nil) {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":false }}\n")
+		log.Printf("INFO[search]: value \"%s\" is not found\n", val)
+
+	} else {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":true }}\n")
+		log.Printf("INFO[search]: value \"%s\" is found\n", val)
+	}
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func insertHandler(bst *bst_t, w http.ResponseWriter, r *http.Request) {
+func insertHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Request) {
+
+	if (r.Method != "POST") {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid method for /insert\", \"is_inserted\":false }}\n")
+		log.Printf("ERROR[insert]: invalid method \"%s\"\n", r.Method)
+		return
+	}
+
+
+	err := r.ParseForm();
+	if (err != nil) {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid value for /insert\", \"is_inserted\":false }}\n")
+		log.Printf("ERROR[insert]: can not parse data\n")
+		return
+	}
+
+
+	val := r.FormValue("val")
+	val_int64, err := strconv.ParseInt(val, 10, 64);
+	if (err != nil) {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid value for /insert\", \"is_inserted\":false }}\n")
+		log.Printf("ERROR[insert]: invalid value \"%s\"\n", val)
+		return
+	}
+
+
+	var p *bst_item_t
+	p = bst.insert(val_int64, flag_uniq)
+	if (p == nil) {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_inserted\":false }}\n")
+		log.Printf("INFO[insert]: value \"%s\" is already exist\n", val)
+
+	} else {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_inserted\":true }}\n")
+		log.Printf("INFO[insert]: value \"%s\" is inserted\n", val)
+	}
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
-func deleteHandler(bst *bst_t, w http.ResponseWriter, r *http.Request) {
+func deleteHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Request) {
+
+	if (r.Method != "DELETE") {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid method for /delete\", \"is_deleted\":false }}\n")
+		log.Printf("ERROR[delete]: invalid method \"%s\"\n", r.Method)
+		return
+	}
+
+
+	val := r.URL.Query()["val"][0]
+	val_int64, err := strconv.ParseInt(val, 10, 64);
+	if (err != nil) {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid value for /delete\", \"is_deleted\":false }}\n")
+		log.Printf("ERROR[delete]: invalid value \"%s\"\n", val)
+		return
+	}
+
+
+	var p *bst_t
+	p = bst.delete(val_int64, flag_uniq)
+	if (p == nil) {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_deleted\":false }}\n")
+		log.Printf("INFO[delete]: value \"%s\" is not found\n", val)
+
+	} else {
+
+		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_deleted\":true }}\n")
+		log.Printf("INFO[delete]: value \"%s\" is deleted\n", val)
+	}
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 func main() {
@@ -363,167 +465,25 @@ func main() {
 */
 
 
-//	http.HandleFunc("/search", searchHandler)
-//	http.HandleFunc("/insert", insertHandler)
-//	http.HandleFunc("/delete", deleteHandler)
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 	http.HandleFunc("/search/", func(w http.ResponseWriter, r *http.Request) {
 
-		if (r.Method != "GET") {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid method for /search\", \"is_found\":false }}\n")
-			log.Printf("ERROR[search]: invalid method \"%s\"\n", r.Method)
-			return
-		}
-
-//		fmt.Fprintf(w, "search, %q\n", html.EscapeString(r.URL.Path))
-
-
-//		q := r.URL.Query()
-		val := r.URL.Query()["val"][0]
-
-
-		val_int64, err := strconv.ParseInt(val, 10, 64);
-		if (err != nil) {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid value for /search\", \"is_found\":false }}\n")
-			log.Printf("ERROR[search]: invalid value \"%s\"\n", val)
-			return
-		}
-
-
-//		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":false }}\n")
-
-
-//		fmt.Fprintf(w, "search, %s\n", val)
-
-
-		p = bst.find(val_int64)
-		if (p == nil) {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":false }}\n")
-			log.Printf("INFO[search]: value \"%s\" is not found\n", val)
-
-		} else {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":true }}\n")
-			log.Printf("INFO[search]: value \"%s\" is found\n", val)
-		}
+		searchHandler(&bst, flag_uniq, w, r)
 	})
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 	http.HandleFunc("/insert", func(w http.ResponseWriter, r *http.Request) {
 
-		if (r.Method != "POST") {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid method for /insert\", \"is_inserted\":false }}\n")
-			log.Printf("ERROR[insert]: invalid method \"%s\"\n", r.Method)
-			return
-		}
-
-
-//		fmt.Fprintf(w, "search, %q\n", html.EscapeString(r.URL.Path))
-
-
-		err := r.ParseForm();
-		if (err != nil) {
-            fmt.Fprintf(w, "ParseForm() err: %v", err)
-            return
-        }
-
-//        fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
-        val := r.FormValue("val")
-
-
-//		log.Printf("zzzz \"%s\"\n", r.URL.Query()["val"])
-
-//		q := r.URL.Query()
-//		val := r.URL.Query()["val"][0]
-
-
-		val_int64, err := strconv.ParseInt(val, 10, 64);
-		if (err != nil) {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid value for /insert\", \"is_inserted\":false }}\n")
-			log.Printf("ERROR[insert]: invalid value \"%s\"\n", val)
-			return
-		}
-
-
-//		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":false }}\n")
-//		fmt.Fprintf(w, "search, %s\n", val)
-
-
-		p = bst.insert(val_int64, flag_uniq)
-		if (p == nil) {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_inserted\":false }}\n")
-			log.Printf("INFO[insert]: value \"%s\" is already exist\n", val)
-
-		} else {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_inserted\":true }}\n")
-			log.Printf("INFO[insert]: value \"%s\" is inserted\n", val)
-		}
-
+		insertHandler(&bst, flag_uniq, w, r)
 	})
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 	http.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
 
-		if (r.Method != "DELETE") {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid method for /delete\", \"is_deleted\":false }}\n")
-			log.Printf("ERROR[delete]: invalid method \"%s\"\n", r.Method)
-			return
-		}
-
-//		fmt.Fprintf(w, "search, %q\n", html.EscapeString(r.URL.Path))
-		fmt.Fprintf(w, "delete %q\n", html.EscapeString(r.URL.Path))
-
-
-//		q := r.URL.Query()
-		val := r.URL.Query()["val"][0]
-
-
-		val_int64, err := strconv.ParseInt(val, 10, 64);
-		if (err != nil) {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid value for /delete\", \"is_deleted\":false }}\n")
-			log.Printf("ERROR[delete]: invalid value \"%s\"\n", val)
-			return
-		}
-
-
-//		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":false }}\n")
-//		fmt.Fprintf(w, "search, %s\n", val)
-
-
-		p = bst.delete(val_int64, flag_uniq)
-		if (p == nil) {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_deleted\":false }}\n")
-			log.Printf("INFO[delete]: value \"%s\" is not found\n", val)
-
-		} else {
-
-			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_deleted\":true }}\n")
-			log.Printf("INFO[delete]: value \"%s\" is deleted\n", val)
-		}
-
-
+		deleteHandler(&bst, flag_uniq, w, r)
 	})
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-//функциям работы с BST. (GET /search?val=val; POST /insert, DELETE /delete?val=val);
-
-var x string = "wow";
-
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello %s, %q\n", x, html.EscapeString(r.URL.Path))
-	})
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+		fmt.Fprintf(w, "for search use: curl -X 'GET' -L 'http://localhost:8080/search?val=777'\n")
+		fmt.Fprintf(w, "for insert use: curl -X 'POST' --data 'val=777' -L 'http://localhost:8080/insert'\n")
+		fmt.Fprintf(w, "for delete use: curl -X 'DELETE' -L 'http://localhost:8080/delete?val=777'\n")
+	})
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
