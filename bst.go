@@ -272,6 +272,14 @@ func (p *bst_t) delete(key int64, flag_uniq bool) (*bst_t) {
 	return p
 }
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
+func searchHandler(bst *bst_t, w http.ResponseWriter, r *http.Request) {
+}
+/* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
+func insertHandler(bst *bst_t, w http.ResponseWriter, r *http.Request) {
+}
+/* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
+func deleteHandler(bst *bst_t, w http.ResponseWriter, r *http.Request) {
+}
 /* ***************************************************************************************************************************************************************************************************************************************************************************************************************** */
 func main() {
 
@@ -443,8 +451,6 @@ func main() {
 
 
 //		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":false }}\n")
-
-
 //		fmt.Fprintf(w, "search, %s\n", val)
 
 
@@ -466,10 +472,45 @@ func main() {
 
 		if (r.Method != "DELETE") {
 
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid method for /delete\", \"is_deleted\":false }}\n")
+			log.Printf("ERROR[delete]: invalid method \"%s\"\n", r.Method)
 			return
 		}
 
+//		fmt.Fprintf(w, "search, %q\n", html.EscapeString(r.URL.Path))
 		fmt.Fprintf(w, "delete %q\n", html.EscapeString(r.URL.Path))
+
+
+//		q := r.URL.Query()
+		val := r.URL.Query()["val"][0]
+
+
+		val_int64, err := strconv.ParseInt(val, 10, 64);
+		if (err != nil) {
+
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":true, \"err_msg\":\"invalid value for /delete\", \"is_deleted\":false }}\n")
+			log.Printf("ERROR[delete]: invalid value \"%s\"\n", val)
+			return
+		}
+
+
+//		fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_found\":false }}\n")
+//		fmt.Fprintf(w, "search, %s\n", val)
+
+
+		p = bst.delete(val_int64, flag_uniq)
+		if (p == nil) {
+
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_deleted\":false }}\n")
+			log.Printf("INFO[delete]: value \"%s\" is not found\n", val)
+
+		} else {
+
+			fmt.Fprintf(w, "{\"result\":{\"is_error\":false, \"err_msg\":\"\", \"is_deleted\":true }}\n")
+			log.Printf("INFO[delete]: value \"%s\" is deleted\n", val)
+		}
+
+
 	})
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
