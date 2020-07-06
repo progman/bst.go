@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"sync"
 	"fmt"
@@ -60,7 +61,6 @@ type bst_t struct {
  * @param  arg контекс программы
  * @return признак того успешно ли отработала функция
  */
-
 func (p *bst_t) init() {
 
 	p.head = nil
@@ -69,7 +69,7 @@ func (p *bst_t) init() {
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
+ * @brief  insert key to BST (we do not use recursion becase we think about stack overflow)
  * @param  arg контекс программы
  * @return признак того успешно ли отработала функция
  */
@@ -93,7 +93,7 @@ func (p *bst_t) insert(key int64, flag_uniq bool) (*bst_item_t) {
 	}
 
 
-// we will not use recursion (we think about stack overflow)
+// we do not use recursion becase we think about stack overflow
 	var p_old *bst_item_t = nil
 	var p_cur *bst_item_t = p.head
 	for {
@@ -176,7 +176,7 @@ func (p *bst_t) findInner(key int64) (*bst_item_t) {
 	}
 
 
-// we will not use recursion (we think about stack size)
+// we do not use recursion becase we think about stack overflow
 	var p_cur *bst_item_t = p.head
 	for {
 
@@ -260,6 +260,7 @@ func (p *bst_t) deleteInner(key int64) (*bst_t) {
 	}
 
 
+// we do not use recursion becase we think about stack overflow
 
 
 //	parent *bst_item_t
@@ -335,7 +336,7 @@ func (p *bst_t) delete(key int64, flag_uniq bool) (*bst_t) {
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
+ * @brief  http handler for operation search
  * @param  arg контекс программы
  * @return признак того успешно ли отработала функция
  */
@@ -376,7 +377,7 @@ func searchHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Re
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
+ * @brief  http handler for operation insert
  * @param  arg контекс программы
  * @return признак того успешно ли отработала функция
  */
@@ -426,7 +427,7 @@ func insertHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Re
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
+ * @brief  http handler for operation delete
  * @param  arg контекс программы
  * @return признак того успешно ли отработала функция
  */
@@ -467,10 +468,21 @@ func deleteHandler(bst *bst_t, flag_uniq bool, w http.ResponseWriter, r *http.Re
 
 /**
  * @author Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.online/doc/cv
- * @brief  перевод денег между счетами
- * @return признак того успешно ли отработала функция
+ * @brief  main function
  */
 func main() {
+
+
+
+
+
+	intJson := `[ 100, 110, 90, 100, 110, 120, 105 ]`
+
+	var int_list []int64
+
+	json.Unmarshal([]byte(intJson), &int_list)
+	fmt.Printf("Birds : %+v\n", int_list)
+
 
 	var bst bst_t
 	bst.init()
