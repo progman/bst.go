@@ -1,14 +1,17 @@
-$ curl -L 'http://localhost:8080/search?val=100'
+$ curl -X 'GET' -L 'http://localhost:8080/search?val=100'
 {"result":{"is_error":false, "err_msg":"", "is_found":true }}
 
 
-$ curl -L 'http://localhost:8080/search?val=777'
+$ curl -X 'GET' -L 'http://localhost:8080/search?val=777'
 {"result":{"is_error":false, "err_msg":"", "is_found":false }}
 
 
-$ curl --data 'val=777' 'http://localhost:8080/insert'
+$ curl -X 'POST' --data 'val=777' -L 'http://localhost:8080/insert'
 {"result":{"is_error":false, "err_msg":"", "is_inserted":true }}
 
 
-$ curl -L 'http://localhost:8080/search?val=777'
+$ curl -X 'GET' -L 'http://localhost:8080/search?val=777'
 {"result":{"is_error":false, "err_msg":"", "is_found":true }}
+
+
+$ curl -X 'DELETE' -L 'http://localhost:8080/delete?val=777'
